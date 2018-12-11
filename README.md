@@ -25,6 +25,7 @@
 ### 还有
 * 多播
 * 调度器(Scheduler)
+* 高阶Observable
 * rxjs的调试和测试
 
 ## 第一大类：创建操作符
@@ -327,3 +328,24 @@ const source$1 = Observable.interval(2000)
 const source$2 = Observable.timer(0, 1000)
 const result$ = source$1.forkJoin(source$2);
 ```
+
+#### 高阶Observable 高阶数据流
+```js
+// 高阶函数就是产生函数的函数：参数为函数，返回也是函数
+// 简单的高阶Observable
+const hot$ = Observable.interval(1000).take(2).map(x => Observable.interval(1500).map(y => x+':'+y).take(2))
+```
+
+## 第三大类：辅助类操作符
+
+| 操作符 | 功能 |
+| ------ | ------ |
+| count | 统计数据流中产生的所有数据个数 |
+| max min | 获得数据流中的最大和最小数据 |
+| Reduce | 对数据流中所有数据进行规约操作 |
+| every | 判断一个数据流是否不包含任何数据 |
+| find findIndex | 找到第一个满足判定条件的数据 |
+| isEmpty | 判断一个数据流是否不包含任何数据 |
+| defaultEmpty | 如果一个数据流为空就默认产生一个指定的数据 |
+
+例子：
