@@ -320,5 +320,6 @@ const result$ = source$1.startWith('start'); // 支持多个参数，同步输�
 
 #### forkJoin
 ```js
-// forkJoin只要静态操作符，接受多个Observable对象作为参数，它只会产生一个数据，因为他会等待所有参数Observable对象对象的最后一个数据，也就是说，只要当所有Observable都完结，forkJoin会把所有输入Observable对象产生的最后一个数据合并成下游唯一的数据
+// forkJoin只要静态操作符，接受多个Observable对象作为参数，它只会产生一个数据，因为他会等待所有参数Observable对象对象的最后一个数据，
+// 也就是说，只要当所有Observable都完结，forkJoin会把所有输入Observable对象产生的最后一个数据合并成下游唯一的数据
 ```
