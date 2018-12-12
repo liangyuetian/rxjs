@@ -333,8 +333,15 @@ const result$ = source$1.forkJoin(source$2);
 ```js
 // 高阶函数就是产生函数的函数：参数为函数，返回也是函数
 // 简单的高阶Observable
-const hot$ = Observable.interval(1000).take(2).map(x => Observable.interval(1500).map(y => x+':'+y).take(2))
+const hot$ = Observable.interval(1000).take(2).map(x => Observable.interval(1500).map(y => x+':'+y).take(2));
+// 注意：高阶Observable完结，不代表内部Observable完结，但是内部Observable却不会岁随主干Observable的完结而完结，因为作为独立Observable，他们有自己的生命周期
+
+// 高阶Observable的意义
+// 高阶Observable的本质是用管理数据的方式来管理多个Observable对象，它的存在意义就在与此
 ```
+
+#### 操作高阶Observable的合并累操作符
+
 
 ## 第三大类：辅助类操作符
 
