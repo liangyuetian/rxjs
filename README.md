@@ -340,8 +340,89 @@ const hot$ = Observable.interval(1000).take(2).map(x => Observable.interval(1500
 // 高阶Observable的本质是用管理数据的方式来管理多个Observable对象，它的存在意义就在与此
 ```
 
-#### 操作高阶Observable的合并累操作符
+#### 操作高阶Observable的合并类操作符
 
+* concatAll
+* merageAll
+* zipAll
+* combineAll(例外)
+
+all代表全部，这些操作符功能有差异，但都是把一个高阶Observable的所有的内部Observable组合起来，所有这类操作符全部都只有实力操作符的形式
+
+#### concatAll 
+```js
+// concatAll 只有一个上游Observable对象，这个observable对象预期是一个高阶Observable对象，concatAll会对内部的Observable对象做concat操作
+const ho$ = Observable.interval(1000)
+            .take(2)
+            .map(x => Observable.interval(1500).map(y => x+':'+y).take(2));
+const concated$ = ho$.concatAll();
+// 0:0 # 开始订阅第一个内部Observable
+// 0:1 
+// 1:0 # 开始订阅第二个内部Observable
+// 1:1
+// concatAll 首先会订阅上游产生的第一个内部Observable对象，抽取其中的数据，然后只有当第一个Observable对象完结的时候，才会去订阅第二个Observable对象。
+// 也就是说，虽然高阶Observable对象已经产生了第二个Observable对象，不代表concatAll会立刻去订阅它，因为和这个Observable对象是懒执行，所以不去订阅自然也不会产生数据。
+```
+
+#### mergeAll
+```js
+// mergeAll 就是处理高阶Observable的merge,
+const ho$ = Observable.interval(1000)
+            .take(2)
+            .map(x => Observable.interval(1500).map(y => x+':'+y).take(2));
+const concated$ = ho$.margeAll();
+// mergeAll 对内部的Observable的订阅策略和concatAll不同，mergeAll只要发现上游产生一个内部Observable就会立刻订阅，并从中抽取数据
+```
+
+#### zipAll
+```js
+const ho$ = Observable.interval(1000)
+            .take(2)
+            .map(x => Observable.interval(1500).map(y => x+':'+y).take(2));
+const concated$ = ho$.zipAll();
+// ["0:0", "1:0"]
+// ["0:1", "1:1"]
+
+const ho$ = Observable.interval(1000).take(2).concat(Observable.never()) // 形成了只有两个数据的永不完结的数据流
+            .map(x => Observable.interval(1500).map(y => x+':'+y).take(2));
+const concated$ = ho$.zipAll();
+// 现在zipAll的上游是一个永不完结的Observable，当它拿到2个内部Observable的时候，无法确定是不是还有新的内部Observable产生，而根据拉链的工作方式，来自不同数据源的数据要一对一配对，
+// 这样一来，zipAll就只能等待，等待上游高阶Observable完结，这样才能确定内部Observable对象的数量，如果上游的高阶Observable不完结，那么zipAll 就不会开始工作
+```
+
+#### switch 切换输入Observable
+```js
+// switch 的含义就是 切换，总是切换到最新的内部Observable对象获取数据，每当switch的上游高阶Observable产生一个内部Observable对象，switch都会立刻订阅最新的内部Observable对象上
+// 如果已经订阅了之前的内部Observable对象，就会退订那个多事的内部Observable对象，这个 用上新的，舍弃旧的 动作，就是切换
+const ho$ = Observable.interval(1000)
+            .take(2)
+            .map(x => Observable.interval(1500).map(y => x+':'+y).take(2));
+const result$ = ho$.switch();
+// 1:0
+// 1:1
+// switch 首先订阅了第一个内部Observable对象，但是这个内部对象还没来得及产生第一个数据0:0(1000ms + 1500ms 后)，第二个内部Observable对象就产生了(100ms + 1000ms 后)，
+// 这样switch就会切换动作，切换到第二个内部Observable上，因为之后没有新的内部Observable对象产生了，switch就会一直从第二个内部Observable对象获取数据，于是最后得到的数据就是 1:0,1:1
+
+// 在上游Observable产生新的内部Observable时进行切换。订阅的是内部的Observable
+
+// 注意和 race 不同，race 是别人没有机会，而switch可以翻来覆去一直抢
+
+// 完结条件：1 上游高阶Observable已经完结; 2 当前内部Observable已经完结
+```
+
+#### exhaust 耗尽
+```js
+// 在耗尽当前内部Observable的数据之前不会切换到下一个内部Observable对象
+const ho$ = Observable.interval(1000)
+            .take(3)
+            .map(x => Observable.interval(700).map(y => x+':'+y).take(2));
+const result$ = ho$.exhaust();
+// exhaust 首先从第一个内部Observable对象获取数据，然后再考虑后续的内部Observable对象
+// 第二个内部Observable生不逢时，当它产生的时候第一个内部Observable对象还没有完结，这时候exhaust会直接忽略第二个Observable对象，甚至不会去订阅它，、
+// 第三个内部Observable对象会被订阅病提取数据，是因为在它出现之前，第一个内部Observable都已经完结了
+
+// 完结条件：1 上游Observable对象完结; 2 最新的内部Observable对象完结
+```
 
 ## 第三大类：辅助类操作符
 
