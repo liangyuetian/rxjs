@@ -437,3 +437,44 @@ const result$ = ho$.exhaust();
 | defaultEmpty | 如果一个数据流为空就默认产生一个指定的数据 |
 
 例子：
+#### 数学类操作符
+#### count max min reduce 
+所有的这些操作符都是实例操作符，还有一个共同特点，就是就些操作符必定会遍历上游Observable对象中突出的所有数据才给下游传递数据，也就是时说，他们就有在上游完结的时候，才给下游传递唯一数据
+```js
+count 的作用就是统计上游Observable对象吐出的所有数据个数。
+max,min的作用就是取得上游Observable吐出所有数据的最大值或最小值，第二个参数接受一个比较函数
+reduce 规约统计，跟原生数组的reduce作用一样，用法一样
+
+```
+
+#### every find findIndex
+```js
+every 要求一个判定函数作为参数，上游Observable吐出的每一个数据都会被这个判定函数检验，如果所有数据的判定结果都是true,那么上游Observable对象完结的时候，如果有一个为false，那么立刻完结吐出false,基本和原生数组every方法作用一致
+
+```
+
+#### isEmpty
+```js
+isEmpty 用于检查一个上游Observable对象是不是‘空的’，所谓‘空的’Observable是指没有吐出任何数据就完结的Observable对象。
+```
+
+#### defaultEmpty 接受一个默认值作为参数，如果发现上游是空的，那么返回这个默认值
+
+
+## 第三大类：过滤类操作符
+
+| 操作符 | 功能 |
+| ------ | ------ |
+| filter | 过滤掉不满足条件的数据 |
+| first | 获得满足判定条件的第一个数据 |
+| last | 获得满足判定条件的最后一个数据 |
+| take | 从数据流中选取最先出现的若干数据 |
+| takeLast | 从数据流中选取最先出现的若干数据 |
+| takeWhile takeUntil | 从数据流中选取数据直到某种情况发生 |
+| skip | 从数据流中忽略最先出现的若干数据 |
+| skipWhile skipUntil | 从数据流中忽略直到某种情况发生 |
+| distnct | 删除重复数据 |
+| distnctUntilChanged distinctUntilKeyChanged | 删除重复的连续数据 |
+| ignoreElements | 忽略数据流中所有的数据 |
+| elementAt | 只选取指定出现位置的数据 |
+| single | 判断是否只有一个数据满足判定条件 |
